@@ -122,13 +122,13 @@ export class MemStorage implements IStorage {
     };
     this.courses.set(1, sampleCourse);
 
-    // Create sample activities
+    // Create sample activities with advanced features
     const sampleActivities: Activity[] = [
       {
         id: 1,
         name: "Read Aloud",
         type: "read_aloud",
-        description: "Practice reading passages from your textbook with perfect pronunciation and fluency.",
+        description: "Practice reading CBSE textbook passages with perfect pronunciation and fluency tracking.",
         duration: 15,
         xpReward: 50,
         icon: "fas fa-book-open",
@@ -137,7 +137,7 @@ export class MemStorage implements IStorage {
         id: 2,
         name: "Picture Talk",
         type: "picture_talk",
-        description: "Describe pictures and scenes to improve your vocabulary and storytelling skills.",
+        description: "AI-powered image analysis with vocabulary enhancement and storytelling practice.",
         duration: 10,
         xpReward: 40,
         icon: "fas fa-image",
@@ -146,11 +146,74 @@ export class MemStorage implements IStorage {
         id: 3,
         name: "Daily Chat",
         type: "daily_chat",
-        description: "Practice everyday conversations with AI to build confidence in real situations.",
+        description: "Interactive AI conversations with real-time grammar correction and cultural context.",
         duration: 20,
         xpReward: 60,
         icon: "fas fa-comments",
       },
+      {
+        id: 4,
+        name: "Story Creation",
+        type: "story_telling",
+        description: "Create imaginative stories with AI prompts to boost creativity and narrative skills.",
+        duration: 25,
+        xpReward: 80,
+        icon: "fas fa-book",
+      },
+      {
+        id: 5,
+        name: "Pronunciation Master",
+        type: "pronunciation_drill",
+        description: "Advanced phonetic training with Indian accent adaptation and IPA guidance.",
+        duration: 12,
+        xpReward: 45,
+        icon: "fas fa-volume-up",
+      },
+      {
+        id: 6,
+        name: "Debate Arena",
+        type: "debate_practice",
+        description: "Practice argumentative skills on current topics with structured debate format.",
+        duration: 30,
+        xpReward: 100,
+        icon: "fas fa-gavel",
+      },
+      {
+        id: 7,
+        name: "Poetry Recital",
+        type: "poetry_recitation",
+        description: "Master rhythm and emotion through classical and modern poetry recitation.",
+        duration: 18,
+        xpReward: 70,
+        icon: "fas fa-feather-alt",
+      },
+      {
+        id: 8,
+        name: "News Anchor",
+        type: "news_reading",
+        description: "Practice formal presentation skills with current affairs and news reading.",
+        duration: 22,
+        xpReward: 75,
+        icon: "fas fa-newspaper",
+      },
+      {
+        id: 9,
+        name: "Interview Prep",
+        type: "interview_practice",
+        description: "Prepare for school interviews and competitions with mock sessions.",
+        duration: 28,
+        xpReward: 90,
+        icon: "fas fa-user-tie",
+      },
+      {
+        id: 10,
+        name: "Tongue Twisters",
+        type: "tongue_twisters",
+        description: "Fun pronunciation challenges to improve articulation and speech clarity.",
+        duration: 8,
+        xpReward: 35,
+        icon: "fas fa-brain",
+      }
     ];
     sampleActivities.forEach(activity => this.activities.set(activity.id, activity));
 

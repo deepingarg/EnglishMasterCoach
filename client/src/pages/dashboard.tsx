@@ -8,6 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SpeechRecorder from "@/components/speech-recorder";
 import FeedbackModal from "@/components/feedback-modal";
 import ActivityCard from "@/components/activity-card";
+import AdvancedAnalytics from "@/components/advanced-analytics";
+import StreakTracker from "@/components/streak-tracker";
+import VocabularyTracker from "@/components/vocabulary-tracker";
+import AITutor from "@/components/ai-tutor";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -166,7 +170,7 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-8 mb-8">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <ChartLine className="h-4 w-4" />
               Dashboard
@@ -174,6 +178,22 @@ export default function Dashboard() {
             <TabsTrigger value="courses" className="flex items-center gap-2">
               <Book className="h-4 w-4" />
               Courses
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="streak" className="flex items-center gap-2">
+              <Flame className="h-4 w-4" />
+              Streaks
+            </TabsTrigger>
+            <TabsTrigger value="vocabulary" className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              Vocabulary
+            </TabsTrigger>
+            <TabsTrigger value="tutor" className="flex items-center gap-2">
+              <MessageCircle className="h-4 w-4" />
+              AI Tutor
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
@@ -371,6 +391,26 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <AdvancedAnalytics user={user} recentFeedback={recentFeedback} />
+          </TabsContent>
+
+          {/* Streak Tracker Tab */}
+          <TabsContent value="streak" className="space-y-6">
+            <StreakTracker user={user} />
+          </TabsContent>
+
+          {/* Vocabulary Tracker Tab */}
+          <TabsContent value="vocabulary" className="space-y-6">
+            <VocabularyTracker user={user} />
+          </TabsContent>
+
+          {/* AI Tutor Tab */}
+          <TabsContent value="tutor" className="space-y-6">
+            <AITutor user={user} />
           </TabsContent>
 
           {/* Courses Tab */}
