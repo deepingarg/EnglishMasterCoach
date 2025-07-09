@@ -14,6 +14,7 @@ import VocabularyTracker from "@/components/vocabulary-tracker";
 import AITutor from "@/components/ai-tutor";
 import LevelProgression from "@/components/level-progression";
 import SkillAssessment from "@/components/skill-assessment";
+import LevelDetails from "@/components/level-details";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -406,7 +407,7 @@ export default function Dashboard() {
 
           {/* Level Progression Tab */}
           <TabsContent value="levels" className="space-y-6">
-            <LevelProgression user={user} />
+            <LevelDetails user={user} />
           </TabsContent>
 
           {/* Skill Assessment Tab */}
@@ -436,39 +437,7 @@ export default function Dashboard() {
 
           {/* Courses Tab */}
           <TabsContent value="courses" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Book className="h-5 w-5" />
-                  Available Courses
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="border rounded-lg p-6">
-                    <h3 className="text-xl font-semibold mb-2">30-Day Speaking Course</h3>
-                    <p className="text-gray-600 mb-4">Structured daily lessons aligned with CBSE curriculum</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                      <span>Level: Intermediate</span>
-                      <span>Duration: 30 days</span>
-                    </div>
-                    <Progress value={(user?.currentDay || 1) / 30 * 100} className="mb-4" />
-                    <p className="text-sm text-gray-600 mb-4">
-                      Progress: Day {user?.currentDay || 1} of 30
-                    </p>
-                    <Button className="w-full">Continue Course</Button>
-                  </div>
-                  
-                  <div className="border rounded-lg p-6 opacity-75">
-                    <h3 className="text-xl font-semibold mb-2">Advanced Speaking</h3>
-                    <p className="text-gray-600 mb-4">Coming soon - Advanced level speaking practice</p>
-                    <Button variant="outline" className="w-full" disabled>
-                      Coming Soon
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <LevelProgression user={user} />
           </TabsContent>
 
           {/* Profile Tab */}
