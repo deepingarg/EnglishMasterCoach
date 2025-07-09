@@ -12,6 +12,8 @@ import AdvancedAnalytics from "@/components/advanced-analytics";
 import StreakTracker from "@/components/streak-tracker";
 import VocabularyTracker from "@/components/vocabulary-tracker";
 import AITutor from "@/components/ai-tutor";
+import LevelProgression from "@/components/level-progression";
+import SkillAssessment from "@/components/skill-assessment";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -33,7 +35,8 @@ import {
   Clock,
   BookOpen,
   Image,
-  MessageCircle
+  MessageCircle,
+  GraduationCap
 } from "lucide-react";
 import { TextToSpeech } from "@/lib/speech-api";
 
@@ -170,38 +173,46 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-8 mb-8">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
-              <ChartLine className="h-4 w-4" />
-              Dashboard
+          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10 mb-8 text-xs">
+            <TabsTrigger value="dashboard" className="flex items-center gap-1">
+              <ChartLine className="h-3 w-3" />
+              <span className="hidden sm:inline">Dashboard</span>
             </TabsTrigger>
-            <TabsTrigger value="courses" className="flex items-center gap-2">
-              <Book className="h-4 w-4" />
-              Courses
+            <TabsTrigger value="levels" className="flex items-center gap-1">
+              <GraduationCap className="h-3 w-3" />
+              <span className="hidden sm:inline">Levels</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Analytics
+            <TabsTrigger value="skills" className="flex items-center gap-1">
+              <Target className="h-3 w-3" />
+              <span className="hidden sm:inline">Skills</span>
             </TabsTrigger>
-            <TabsTrigger value="streak" className="flex items-center gap-2">
-              <Flame className="h-4 w-4" />
-              Streaks
+            <TabsTrigger value="courses" className="flex items-center gap-1">
+              <Book className="h-3 w-3" />
+              <span className="hidden sm:inline">Courses</span>
             </TabsTrigger>
-            <TabsTrigger value="vocabulary" className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              Vocabulary
+            <TabsTrigger value="analytics" className="flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" />
+              <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="tutor" className="flex items-center gap-2">
-              <MessageCircle className="h-4 w-4" />
-              AI Tutor
+            <TabsTrigger value="streak" className="flex items-center gap-1">
+              <Flame className="h-3 w-3" />
+              <span className="hidden sm:inline">Streaks</span>
             </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Profile
+            <TabsTrigger value="vocabulary" className="flex items-center gap-1">
+              <BookOpen className="h-3 w-3" />
+              <span className="hidden sm:inline">Vocabulary</span>
             </TabsTrigger>
-            <TabsTrigger value="achievements" className="flex items-center gap-2">
-              <Award className="h-4 w-4" />
-              Achievements
+            <TabsTrigger value="tutor" className="flex items-center gap-1">
+              <MessageCircle className="h-3 w-3" />
+              <span className="hidden sm:inline">AI Tutor</span>
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-1">
+              <User className="h-3 w-3" />
+              <span className="hidden sm:inline">Profile</span>
+            </TabsTrigger>
+            <TabsTrigger value="achievements" className="flex items-center gap-1">
+              <Award className="h-3 w-3" />
+              <span className="hidden sm:inline">Achievements</span>
             </TabsTrigger>
           </TabsList>
 
@@ -391,6 +402,16 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Level Progression Tab */}
+          <TabsContent value="levels" className="space-y-6">
+            <LevelProgression user={user} />
+          </TabsContent>
+
+          {/* Skill Assessment Tab */}
+          <TabsContent value="skills" className="space-y-6">
+            <SkillAssessment user={user} />
           </TabsContent>
 
           {/* Analytics Tab */}

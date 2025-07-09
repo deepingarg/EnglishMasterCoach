@@ -111,16 +111,50 @@ export class MemStorage implements IStorage {
     };
     this.users.set(1, sampleUser);
 
-    // Create sample course
-    const sampleCourse: Course = {
-      id: 1,
-      title: "30-Day Speaking Course",
-      description: "Structured daily lessons aligned with CBSE curriculum",
-      level: "Intermediate",
-      totalDays: 30,
-      topics: ["Family & Friends", "School Life", "Festivals", "Daily Routine", "Hobbies"],
-    };
-    this.courses.set(1, sampleCourse);
+    // Create comprehensive course system
+    const courses: Course[] = [
+      {
+        id: 1,
+        title: "Beginner English Foundation",
+        description: "Basic vocabulary, simple sentences, and pronunciation fundamentals for CBSE students",
+        level: "Beginner",
+        totalDays: 30,
+        topics: ["Alphabets & Sounds", "Basic Greetings", "Family Members", "Numbers & Colors", "Simple Actions"],
+      },
+      {
+        id: 2,
+        title: "Elementary English Building",
+        description: "Short conversations, basic grammar, and everyday vocabulary expansion",
+        level: "Elementary",
+        totalDays: 45,
+        topics: ["School Subjects", "Daily Routine", "Food & Drinks", "Weather", "Simple Past Tense"],
+      },
+      {
+        id: 3,
+        title: "Intermediate English Development", 
+        description: "Complex sentences, storytelling, and confident speaking for CBSE curriculum",
+        level: "Intermediate",
+        totalDays: 60,
+        topics: ["Festivals & Traditions", "Future Plans", "Describing People", "Expressing Opinions", "Conditional Sentences"],
+      },
+      {
+        id: 4,
+        title: "Upper-Intermediate Mastery",
+        description: "Advanced grammar, debate skills, and formal presentation techniques",
+        level: "Upper-Intermediate", 
+        totalDays: 75,
+        topics: ["Current Affairs", "Social Issues", "Academic Writing", "Persuasive Speaking", "Complex Grammar"],
+      },
+      {
+        id: 5,
+        title: "Advanced English Excellence",
+        description: "Professional communication, public speaking, and competitive exam preparation",
+        level: "Advanced",
+        totalDays: 90,
+        topics: ["Research Presentations", "Critical Analysis", "Professional Interviews", "Leadership Communication", "Advanced Vocabulary"],
+      }
+    ];
+    courses.forEach(course => this.courses.set(course.id, course));
 
     // Create sample activities with advanced features
     const sampleActivities: Activity[] = [
@@ -213,6 +247,51 @@ export class MemStorage implements IStorage {
         duration: 8,
         xpReward: 35,
         icon: "fas fa-brain",
+      },
+      {
+        id: 11,
+        name: "Role Play Scenarios",
+        type: "role_play",
+        description: "Practice real-life situations like shopping, doctor visits, and job interviews.",
+        duration: 20,
+        xpReward: 85,
+        icon: "fas fa-theater-masks",
+      },
+      {
+        id: 12,
+        name: "Academic Presentations",
+        type: "presentation",
+        description: "Deliver structured presentations on academic topics with visual aids.",
+        duration: 35,
+        xpReward: 120,
+        icon: "fas fa-presentation",
+      },
+      {
+        id: 13,
+        name: "Phonetics Training",
+        type: "phonetics",
+        description: "Master IPA symbols and perfect pronunciation with scientific approach.",
+        duration: 15,
+        xpReward: 55,
+        icon: "fas fa-language",
+      },
+      {
+        id: 14,
+        name: "Business Communication",
+        type: "business",
+        description: "Professional emails, meetings, and workplace conversations.",
+        duration: 25,
+        xpReward: 95,
+        icon: "fas fa-briefcase",
+      },
+      {
+        id: 15,
+        name: "Cultural Exchange",
+        type: "cultural",
+        description: "Discuss Indian culture, festivals, and traditions with global perspective.",
+        duration: 30,
+        xpReward: 105,
+        icon: "fas fa-globe-asia",
       }
     ];
     sampleActivities.forEach(activity => this.activities.set(activity.id, activity));
