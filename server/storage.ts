@@ -154,22 +154,66 @@ export class MemStorage implements IStorage {
     ];
     sampleActivities.forEach(activity => this.activities.set(activity.id, activity));
 
-    // Create sample lesson
-    const sampleLesson: Lesson = {
-      id: 1,
-      courseId: 1,
-      day: 12,
-      title: "Describe Your Favourite Festival",
-      description: "Tell us about your favourite Indian festival in 5-7 sentences. Focus on traditions, food, and celebrations!",
-      topic: "Festivals",
-      content: {
-        prompt: "Describe your favourite festival in detail",
-        sampleText: "Diwali is my favourite festival because it brings families together and fills our homes with light and joy.",
-        difficulty: "intermediate",
+    // Create sample lessons
+    const sampleLessons: Lesson[] = [
+      {
+        id: 1,
+        courseId: 1,
+        day: 12,
+        title: "Describe Your Favourite Festival",
+        description: "Tell us about your favourite Indian festival in 5-7 sentences. Focus on traditions, food, and celebrations!",
+        topic: "Festivals",
+        content: {
+          prompt: "Describe your favourite festival in detail",
+          sampleText: "Diwali is my favourite festival because it brings families together and fills our homes with light and joy.",
+          difficulty: "intermediate",
+        },
+        xpReward: 65,
       },
-      xpReward: 65,
-    };
-    this.lessons.set(1, sampleLesson);
+      {
+        id: 2,
+        courseId: 1,
+        day: 13,
+        title: "My School Life",
+        description: "Talk about your daily routine at school, your favorite subjects, and your friends.",
+        topic: "School Life",
+        content: {
+          prompt: "Tell me about your school life and what you enjoy most",
+          sampleText: "I go to school every day at 8 AM. My favorite subject is English because I love reading stories.",
+          difficulty: "beginner",
+        },
+        xpReward: 50,
+      },
+      {
+        id: 3,
+        courseId: 1,
+        day: 14,
+        title: "My Family",
+        description: "Introduce your family members and describe what makes them special.",
+        topic: "Family & Friends",
+        content: {
+          prompt: "Introduce your family members and tell us about them",
+          sampleText: "I have a loving family. My father is a teacher and my mother is a doctor. They both help me with my studies.",
+          difficulty: "beginner",
+        },
+        xpReward: 50,
+      },
+      {
+        id: 4,
+        courseId: 1,
+        day: 15,
+        title: "My Hobbies",
+        description: "Talk about your favorite hobbies and activities you enjoy in your free time.",
+        topic: "Hobbies",
+        content: {
+          prompt: "Share your hobbies and what you like to do for fun",
+          sampleText: "I love reading books and playing cricket with my friends. Reading helps me learn new things.",
+          difficulty: "intermediate",
+        },
+        xpReward: 60,
+      }
+    ];
+    sampleLessons.forEach(lesson => this.lessons.set(lesson.id, lesson));
 
     // Create sample badges
     const sampleBadges: Badge[] = [
@@ -223,8 +267,15 @@ export class MemStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentId++;
     const user: User = {
-      ...insertUser,
       id,
+      username: insertUser.username,
+      name: insertUser.name,
+      level: insertUser.level || "Beginner",
+      xp: insertUser.xp || 0,
+      streak: insertUser.streak || 0,
+      confidenceScore: insertUser.confidenceScore || 0,
+      skills: insertUser.skills || { pronunciation: 0, fluency: 0, grammar: 0, vocabulary: 0 },
+      currentDay: insertUser.currentDay || 1,
       createdAt: new Date(),
     };
     this.users.set(id, user);
@@ -250,7 +301,14 @@ export class MemStorage implements IStorage {
 
   async createCourse(insertCourse: InsertCourse): Promise<Course> {
     const id = this.currentId++;
-    const course: Course = { ...insertCourse, id };
+    const course: Course = { 
+      id,
+      title: insertCourse.title,
+      description: insertCourse.description,
+      level: insertCourse.level,
+      totalDays: insertCourse.totalDays || 30,
+      topics: insertCourse.topics as string[]
+    };
     this.courses.set(id, course);
     return course;
   }
@@ -271,7 +329,21 @@ export class MemStorage implements IStorage {
 
   async createLesson(insertLesson: InsertLesson): Promise<Lesson> {
     const id = this.currentId++;
-    const lesson: Lesson = { ...insertLesson, id };
+    const lesson: Lesson = { 
+      id,
+      courseId: insertLesson.courseId,
+      day: insertLesson.day,
+      title: insertLesson.title,
+      description: insertLesson.description,
+      topic: insertLesson.topic,
+      content: {
+        prompt: insertLesson.content.prompt,
+        sampleText: typeof insertLesson.content.sampleText === 'string' ? insertLesson.content.sampleText : undefined,
+        imageUrl: typeof insertLesson.content.imageUrl === 'string' ? insertLesson.content.imageUrl : undefined,
+        difficulty: insertLesson.content.difficulty
+      },
+      xpReward: insertLesson.xpReward || 50
+    };
     this.lessons.set(id, lesson);
     return lesson;
   }
@@ -304,8 +376,14 @@ export class MemStorage implements IStorage {
   async createUserProgress(insertProgress: InsertUserProgress): Promise<UserProgress> {
     const id = this.currentId++;
     const progress: UserProgress = {
-      ...insertProgress,
       id,
+      userId: insertProgress.userId,
+      lessonId: insertProgress.lessonId,
+      activityId: insertProgress.activityId || null,
+      completed: insertProgress.completed || false,
+      score: insertProgress.score || null,
+      feedback: insertProgress.feedback || null,
+      recordingUrl: insertProgress.recordingUrl || null,
       completedAt: insertProgress.completed ? new Date() : null,
     };
     this.userProgress.set(id, progress);
@@ -339,7 +417,14 @@ export class MemStorage implements IStorage {
 
   async createBadge(insertBadge: InsertBadge): Promise<Badge> {
     const id = this.currentId++;
-    const badge: Badge = { ...insertBadge, id };
+    const badge: Badge = { 
+      id,
+      name: insertBadge.name,
+      description: insertBadge.description,
+      icon: insertBadge.icon,
+      requirement: insertBadge.requirement,
+      xpThreshold: insertBadge.xpThreshold || null
+    };
     this.badges.set(id, badge);
     return badge;
   }

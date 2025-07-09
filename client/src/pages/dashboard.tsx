@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SpeechRecorder from "@/components/speech-recorder";
 import FeedbackModal from "@/components/feedback-modal";
 import ActivityCard from "@/components/activity-card";
@@ -19,7 +20,16 @@ import {
   Medal,
   TrendingUp,
   Lightbulb,
-  ChartLine
+  ChartLine,
+  Book,
+  User,
+  Award,
+  Play,
+  Calendar,
+  Clock,
+  BookOpen,
+  Image,
+  MessageCircle
 } from "lucide-react";
 import { TextToSpeech } from "@/lib/speech-api";
 
@@ -28,6 +38,9 @@ export default function Dashboard() {
   const [isRecordingOpen, setIsRecordingOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [feedbackData, setFeedbackData] = useState<any>(null);
+  const [selectedActivity, setSelectedActivity] = useState<any>(null);
+  const [currentPrompt, setCurrentPrompt] = useState("");
+  const [currentTitle, setCurrentTitle] = useState("");
   const tts = new TextToSpeech();
 
   // Fetch user data
@@ -80,8 +93,8 @@ export default function Dashboard() {
     setIsRecordingOpen(false);
     assessSpeechMutation.mutate({
       transcript,
-      activityType: "daily_mission",
-      duration: 60, // Default duration
+      activityType: selectedActivity?.type || "daily_mission",
+      duration: 60,
     });
   };
 
@@ -99,11 +112,25 @@ export default function Dashboard() {
     }
   };
 
-  const handleActivityClick = (activity: any) => {
-    toast({
-      title: `Starting ${activity.name}`,
-      description: "This feature will be available soon!",
-    });
+  const handleStartActivity = (activity: any) => {
+    setSelectedActivity(activity);
+    
+    // Set prompts based on activity type
+    if (activity.type === "read_aloud") {
+      setCurrentPrompt("Read the following text aloud with clear pronunciation and proper intonation.");
+      setCurrentTitle("Read Aloud Practice");
+    } else if (activity.type === "picture_talk") {
+      setCurrentPrompt("Describe what you see in the picture. Talk about the colors, objects, people, and what might be happening.");
+      setCurrentTitle("Picture Description");
+    } else if (activity.type === "daily_conversation") {
+      setCurrentPrompt("Have a conversation about your day. Tell me what you did, how you felt, and what you learned.");
+      setCurrentTitle("Daily Conversation");
+    } else if (todaysLesson) {
+      setCurrentPrompt(todaysLesson.content.prompt);
+      setCurrentTitle(todaysLesson.title);
+    }
+    
+    setIsRecordingOpen(true);
   };
 
   const handleTryAgain = () => {
@@ -113,360 +140,369 @@ export default function Dashboard() {
 
   const handleNextActivity = () => {
     setIsFeedbackOpen(false);
-    toast({
-      title: "Great Progress!",
-      description: "Choose another activity to continue learning.",
-    });
+    setSelectedActivity(null);
   };
 
   if (userLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading your dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your dashboard...</p>
         </div>
       </div>
     );
   }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-slate-600">Unable to load user data. Please refresh the page.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const progressToNext = Math.min((user.xp % 1000) / 10, 100); // Assuming 1000 XP per level
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="bg-blue-600 text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg">
-                <Mic className="w-5 h-5" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-800">SpeakSmart AI</h1>
-                <p className="text-sm text-slate-500">English Speaking Coach</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Badge variant="secondary" className="bg-green-100 text-green-700">
-                <Star className="w-3 h-3 mr-1" />
-                {user.level}
-              </Badge>
-              
-              <Badge variant="secondary" className="bg-orange-100 text-orange-700">
-                <Zap className="w-3 h-3 mr-1" />
-                {user.xp} XP
-              </Badge>
-              
-              <div className="flex items-center space-x-2 cursor-pointer hover:bg-slate-100 rounded-lg px-2 py-1 transition-colors">
-                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                  {user.name.split(' ').map(n => n[0]).join('')}
-                </div>
-                <span className="text-sm font-medium text-slate-700 hidden sm:block">
-                  {user.name}
-                </span>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome back, {user?.name}! 🎉
+          </h1>
+          <p className="text-gray-600">Ready to improve your English speaking skills today?</p>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Dashboard Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <div className="lg:col-span-2">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-2xl font-bold text-slate-800">Your Learning Journey</h2>
-                    <p className="text-slate-600">Keep practicing to reach Advanced level!</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-blue-600">{user.confidenceScore}%</div>
-                    <div className="text-sm text-slate-500">Confidence Score</div>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
+        <Tabs defaultValue="dashboard" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
+            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+              <ChartLine className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="courses" className="flex items-center gap-2">
+              <Book className="h-4 w-4" />
+              Courses
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Profile
+            </TabsTrigger>
+            <TabsTrigger value="achievements" className="flex items-center gap-2">
+              <Award className="h-4 w-4" />
+              Achievements
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Dashboard Tab */}
+          <TabsContent value="dashboard" className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-slate-700">Progress to Advanced</span>
-                    <span className="text-sm text-slate-500">{user.xp}/1000 XP</span>
+                    <div>
+                      <p className="text-blue-100 text-sm font-medium">Total XP</p>
+                      <p className="text-2xl font-bold">{user?.xp || 0}</p>
+                    </div>
+                    <Zap className="h-8 w-8 text-blue-200" />
                   </div>
-                  <Progress value={progressToNext} className="h-3" />
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">{user.skills.pronunciation}%</div>
-                    <div className="text-sm text-slate-600">Pronunciation</div>
-                    <Progress value={user.skills.pronunciation} className="h-1 mt-1" />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-orange-100 text-sm font-medium">Day Streak</p>
+                      <p className="text-2xl font-bold">{user?.streak || 0}</p>
+                    </div>
+                    <Flame className="h-8 w-8 text-orange-200" />
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{user.skills.fluency}%</div>
-                    <div className="text-sm text-slate-600">Fluency</div>
-                    <Progress value={user.skills.fluency} className="h-1 mt-1" />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-100 text-sm font-medium">Confidence</p>
+                      <p className="text-2xl font-bold">{user?.confidenceScore || 0}%</p>
+                    </div>
+                    <Target className="h-8 w-8 text-green-200" />
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-600">{user.skills.grammar}%</div>
-                    <div className="text-sm text-slate-600">Grammar</div>
-                    <Progress value={user.skills.grammar} className="h-1 mt-1" />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-100 text-sm font-medium">Level</p>
+                      <p className="text-2xl font-bold">{user?.level || "Beginner"}</p>
+                    </div>
+                    <Star className="h-8 w-8 text-purple-200" />
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">{user.skills.vocabulary}%</div>
-                    <div className="text-sm text-slate-600">Vocabulary</div>
-                    <Progress value={user.skills.vocabulary} className="h-1 mt-1" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="space-y-6">
-            {/* Streak Counter */}
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Flame className="w-8 h-8 text-white" />
-                </div>
-                <div className="text-3xl font-bold text-slate-800">{user.streak}</div>
-                <div className="text-sm text-slate-600">Day Streak</div>
-                <p className="text-xs text-slate-500 mt-2">Amazing! Keep it up!</p>
-              </CardContent>
-            </Card>
-            
-            {/* Recent Badges */}
-            <Card>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Today's Mission */}
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  Today's Mission - Day {user?.currentDay || 1}
+                </CardTitle>
+              </CardHeader>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">Recent Badges</h3>
-                <div className="space-y-3">
-                  {userBadges.slice(-2).map((userBadge: any) => (
-                    <div key={userBadge.id} className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <Medal className="w-5 h-5 text-green-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-slate-800">{userBadge.badge.name}</div>
-                        <div className="text-xs text-slate-500">{userBadge.badge.description}</div>
-                      </div>
-                    </div>
-                  ))}
-                  {userBadges.length === 0 && (
-                    <p className="text-sm text-slate-500">Complete activities to earn badges!</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Today's Mission */}
-        {todaysLesson && (
-          <div className="mb-8">
-            <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-              <CardContent className="p-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Target className="w-6 h-6" />
-                      <h2 className="text-2xl font-bold">Today's Mission</h2>
-                    </div>
-                    <h3 className="text-xl mb-2">{todaysLesson.title}</h3>
-                    <p className="text-blue-100 mb-4">{todaysLesson.description}</p>
-                    
-                    <div className="flex items-center space-x-4">
-                      <Button 
-                        onClick={() => setIsRecordingOpen(true)}
-                        className="bg-white text-blue-600 hover:bg-blue-50"
-                        disabled={assessSpeechMutation.isPending}
-                      >
-                        <Mic className="w-4 h-4 mr-2" />
-                        {assessSpeechMutation.isPending ? "Processing..." : "Start Mission"}
-                      </Button>
-                      {todaysLesson.content.sampleText && (
-                        <Button 
-                          onClick={playExample}
-                          variant="outline"
-                          className="border-blue-300 text-white hover:bg-blue-600"
-                        >
-                          <Volume2 className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="hidden lg:block">
-                    <div className="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center">
-                      <Mic className="w-16 h-16 text-white/80" />
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Learning Activities */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <h2 className="text-2xl font-bold text-slate-800 col-span-full mb-4">Practice Activities</h2>
-          
-          {activities.map((activity: any) => (
-            <ActivityCard
-              key={activity.id}
-              activity={activity}
-              onClick={() => handleActivityClick(activity)}
-            />
-          ))}
-        </div>
-
-        {/* Course Progress & Feedback */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Course Progress */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-800">30-Day Speaking Course</h2>
-                  <p className="text-slate-600">Structured daily lessons aligned with CBSE curriculum</p>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-blue-600">Day {user.currentDay}</div>
-                  <div className="text-sm text-slate-500">of 30</div>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="border border-slate-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-slate-800">Week 2: Family & Friends</h3>
-                    <Badge className="bg-green-100 text-green-700">In Progress</Badge>
-                  </div>
-                  <div className="grid grid-cols-7 gap-2">
-                    {Array.from({ length: 7 }, (_, i) => {
-                      const dayNumber = 8 + i;
-                      const isCompleted = dayNumber < user.currentDay;
-                      const isCurrent = dayNumber === user.currentDay;
+                {todaysLesson ? (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        {todaysLesson.title}
+                      </h3>
+                      <p className="text-gray-600 mb-4">{todaysLesson.description}</p>
                       
-                      return (
-                        <div key={dayNumber} className="relative">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                            isCompleted 
-                              ? "bg-green-500 text-white"
-                              : isCurrent
-                              ? "bg-blue-600 text-white ring-4 ring-blue-600/20"
-                              : "bg-slate-200 text-slate-400"
-                          }`}>
-                            {dayNumber}
-                          </div>
-                          {isCurrent && (
-                            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-blue-600 font-medium">
-                              Today
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Recent Feedback & Tips */}
-          <div className="space-y-6">
-            {/* Recent Feedback */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                  <ChartLine className="w-5 h-5 text-blue-600 mr-2" />
-                  Recent Feedback
-                </h3>
-                <div className="space-y-4">
-                  {recentFeedback.slice(0, 2).map((feedback: any) => (
-                    <div key={feedback.id} className="border-l-4 border-green-500 bg-green-50 p-4 rounded-r-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-slate-800">Speech Assessment</span>
-                        <span className="text-xs text-slate-500">
-                          {new Date(feedback.completedAt).toLocaleDateString()}
+                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          Day {todaysLesson.day}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Lightbulb className="h-4 w-4" />
+                          {todaysLesson.topic}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Zap className="h-4 w-4" />
+                          {todaysLesson.xpReward} XP
                         </span>
                       </div>
-                      <p className="text-sm text-slate-600 mb-2">{feedback.feedback}</p>
-                      <div className="flex items-center space-x-4 text-xs">
-                        <span className="text-green-600">✅ Overall: {feedback.scores.overall}%</span>
+                    </div>
+
+                    {todaysLesson.content.sampleText && (
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <p className="text-sm text-blue-600 mb-2">Sample Response:</p>
+                        <p className="text-gray-700 italic">"{todaysLesson.content.sampleText}"</p>
+                        <Button 
+                          onClick={playExample}
+                          variant="outline" 
+                          size="sm" 
+                          className="mt-2"
+                        >
+                          <Volume2 className="h-4 w-4 mr-2" />
+                          Play Example
+                        </Button>
+                      </div>
+                    )}
+
+                    <Button 
+                      onClick={() => handleStartActivity(todaysLesson)}
+                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                    >
+                      <Mic className="h-4 w-4 mr-2" />
+                      Start Speaking Practice
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No lesson available for today</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Practice Activities */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Practice Activities
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {activities.map((activity) => (
+                    <div key={activity.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-3 mb-3">
+                        {activity.type === 'read_aloud' && <BookOpen className="h-6 w-6 text-blue-500" />}
+                        {activity.type === 'picture_talk' && <Image className="h-6 w-6 text-green-500" />}
+                        {activity.type === 'daily_conversation' && <MessageCircle className="h-6 w-6 text-purple-500" />}
+                        <h3 className="font-semibold text-gray-900">{activity.name}</h3>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-4">{activity.description}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            {activity.duration}min
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Zap className="h-4 w-4" />
+                            {activity.xpReward} XP
+                          </span>
+                        </div>
+                        <Button 
+                          onClick={() => handleStartActivity(activity)}
+                          variant="outline" 
+                          size="sm"
+                        >
+                          <Play className="h-4 w-4 mr-2" />
+                          Start
+                        </Button>
                       </div>
                     </div>
                   ))}
-                  {recentFeedback.length === 0 && (
-                    <p className="text-sm text-slate-500">Complete activities to see feedback here!</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Skills Progress */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ChartLine className="h-5 w-5" />
+                  Skills Progress
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {user?.skills && Object.entries(user.skills).map(([skill, score]) => (
+                    <div key={skill} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium capitalize">{skill}</span>
+                        <span className="text-sm text-gray-500">{score}%</span>
+                      </div>
+                      <Progress value={score} className="h-2" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Courses Tab */}
+          <TabsContent value="courses" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Book className="h-5 w-5" />
+                  Available Courses
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="border rounded-lg p-6">
+                    <h3 className="text-xl font-semibold mb-2">30-Day Speaking Course</h3>
+                    <p className="text-gray-600 mb-4">Structured daily lessons aligned with CBSE curriculum</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                      <span>Level: Intermediate</span>
+                      <span>Duration: 30 days</span>
+                    </div>
+                    <Progress value={(user?.currentDay || 1) / 30 * 100} className="mb-4" />
+                    <p className="text-sm text-gray-600 mb-4">
+                      Progress: Day {user?.currentDay || 1} of 30
+                    </p>
+                    <Button className="w-full">Continue Course</Button>
+                  </div>
+                  
+                  <div className="border rounded-lg p-6 opacity-75">
+                    <h3 className="text-xl font-semibold mb-2">Advanced Speaking</h3>
+                    <p className="text-gray-600 mb-4">Coming soon - Advanced level speaking practice</p>
+                    <Button variant="outline" className="w-full" disabled>
+                      Coming Soon
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Profile Tab */}
+          <TabsContent value="profile" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Your Profile
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                      {user?.name?.charAt(0) || "A"}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold">{user?.name}</h3>
+                      <p className="text-gray-600">@{user?.username}</p>
+                      <Badge variant="secondary" className="mt-1">
+                        {user?.level} Level
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <p className="text-2xl font-bold text-blue-600">{user?.xp || 0}</p>
+                      <p className="text-sm text-gray-600">Total XP</p>
+                    </div>
+                    <div className="text-center p-4 bg-orange-50 rounded-lg">
+                      <p className="text-2xl font-bold text-orange-600">{user?.streak || 0}</p>
+                      <p className="text-sm text-gray-600">Day Streak</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Achievements Tab */}
+          <TabsContent value="achievements" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Medal className="h-5 w-5" />
+                  Your Achievements
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {userBadges.map((userBadge) => (
+                    <div key={userBadge.id} className="border rounded-lg p-4 text-center">
+                      <Medal className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
+                      <h3 className="font-semibold mb-1">{userBadge.badge?.name}</h3>
+                      <p className="text-sm text-gray-600 mb-2">{userBadge.badge?.description}</p>
+                      <p className="text-xs text-gray-500">
+                        Earned: {new Date(userBadge.earnedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ))}
+                  
+                  {userBadges.length === 0 && (
+                    <div className="col-span-full text-center py-8">
+                      <Medal className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600">Complete activities to earn your first badge!</p>
+                    </div>
                   )}
                 </div>
               </CardContent>
             </Card>
-            
-            {/* Quick Tips */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                  <Lightbulb className="w-5 h-5 text-orange-600 mr-2" />
-                  Speaking Tips
-                </h3>
-                <div className="space-y-4">
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
-                    <h4 className="text-sm font-medium text-slate-800 mb-2">💡 Pro Tip</h4>
-                    <p className="text-sm text-slate-600">Practice tongue twisters for 5 minutes daily to improve pronunciation and fluency!</p>
-                  </div>
-                  
-                  <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
-                    <h4 className="text-sm font-medium text-slate-800 mb-2">🎯 Focus Area</h4>
-                    <p className="text-sm text-slate-600">Work on speaking slowly and clearly. Speed comes naturally with practice.</p>
-                  </div>
-                  
-                  <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-lg">
-                    <h4 className="text-sm font-medium text-slate-800 mb-2">🌟 Motivation</h4>
-                    <p className="text-sm text-slate-600">Remember: Every word you speak in English makes you more confident. Keep going!</p>
-                    <p className="text-xs text-slate-500 mt-1 italic">हर English शब्द आपको और confident बनाता है!</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </main>
+          </TabsContent>
+        </Tabs>
 
-      {/* Speech Recording Modal */}
-      {todaysLesson && (
+        {/* Speech Recorder Modal */}
         <SpeechRecorder
           isOpen={isRecordingOpen}
           onClose={() => setIsRecordingOpen(false)}
           onRecordingComplete={handleRecordingComplete}
-          prompt={todaysLesson.description}
-          title={todaysLesson.title}
+          prompt={currentPrompt}
+          title={currentTitle}
         />
-      )}
 
-      {/* Feedback Modal */}
-      {feedbackData && (
+        {/* Feedback Modal */}
         <FeedbackModal
           isOpen={isFeedbackOpen}
           onClose={() => setIsFeedbackOpen(false)}
           onTryAgain={handleTryAgain}
           onNextActivity={handleNextActivity}
-          scores={feedbackData.assessment.scores}
-          feedback={feedbackData.assessment.feedback}
-          xpEarned={feedbackData.xpEarned}
+          scores={feedbackData?.scores || {}}
+          feedback={feedbackData?.feedback || ""}
+          xpEarned={feedbackData?.xpEarned || 0}
         />
-      )}
+      </div>
     </div>
   );
 }

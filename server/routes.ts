@@ -64,6 +64,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get specific lesson
+  app.get("/api/lesson/:lessonId", async (req, res) => {
+    try {
+      const lessonId = parseInt(req.params.lessonId);
+      const lesson = await storage.getLesson(lessonId);
+      
+      if (!lesson) {
+        return res.status(404).json({ message: "Lesson not found" });
+      }
+      
+      res.json(lesson);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch lesson" });
+    }
+  });
+
+  // Get specific activity
+  app.get("/api/activity/:activityId", async (req, res) => {
+    try {
+      const activityId = parseInt(req.params.activityId);
+      const activity = await storage.getActivity(activityId);
+      
+      if (!activity) {
+        return res.status(404).json({ message: "Activity not found" });
+      }
+      
+      res.json(activity);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch activity" });
+    }
+  });
+
   // Get activities
   app.get("/api/activities", async (req, res) => {
     try {
